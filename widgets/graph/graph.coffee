@@ -19,14 +19,26 @@ class Dashing.Graph extends Dashing.Widget
       series: [
         {
         color: "#fff",
-        data: [{x:0, y:0}]
+        data: [
+          {x: 0, y: 0}
+        ]
         }
       ]
     )
 
     @graph.series[0].data = @get('points') if @get('points')
 
-    x_axis = new Rickshaw.Graph.Axis.Time(graph: @graph)
+    translateToDays = (x) ->
+      return switch x
+        when 1 then 'Mon'
+        when 2 then 'Tue'
+        when 3 then 'Wed'
+        when 4 then 'Thu'
+        when 5 then 'Fri'
+        when 6 then 'Sat'
+        when 7 then 'Sun'
+
+    x_axis = new Rickshaw.Graph.Axis.X(graph: @graph, tickFormat: translateToDays, pixelsPerTick: 30, tickSize: 1)
     y_axis = new Rickshaw.Graph.Axis.Y(graph: @graph, tickFormat: Rickshaw.Fixtures.Number.formatKMBT)
     @graph.render()
 

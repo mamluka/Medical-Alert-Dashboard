@@ -1,4 +1,5 @@
 require 'rest-client'
+require 'chronic'
 
 class ViciStats
   def get_sales(url, hash, group)
@@ -63,5 +64,36 @@ SCHEDULER.every '5m' do
 
   send_event('total-sales', {current: inbound_sales + outbound_sales, last: current_total_sales})
   current_total_sales = outbound_sales + inbound_sales
+
+  this_week_start_date = Time.new.wday == 2 ? Time.new : Chronic.parse('last monday')
+  this_week_end_date = Time.new
+
+  dates_for_data_points = Array.new
+  current_date = this_week_start_date
+  while current_date <= this_week_end_date
+    dates_for_data_points << current_date
+    current_date = current_date + (24*3600)
+  end
+
+  week_sales_data_points = dates_for_data_points.map { |x|
+
+    in_post_hash[:query_date] = x.strftime('%Y-%m-%d')
+    in_post_hash[:end_date] = x.strftime('%Y-%m-%d')
+
+    inbound_sales= %w(MACLOSER MACUST MASALES).map { |group|
+      vici_stats.get_sales 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
+    }.inject(:+)
+
+    out_post_hash[:query_date] = x.strftime('%Y-%m-%d')
+    out_post_hash[:end_date] = x.strftime('%Y-%m-%d')
+
+    outbound_sales = %w(MEDALRT MEDCU).map { |group|
+      vici_stats.get_sales 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
+    }.inject(:+)
+
+    {y: (inbound_sales + outbound_sales), x: x.wday}
+  }
+
+  send_event('sales-graph', {points: week_sales_data_points})
 
 end

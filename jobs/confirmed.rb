@@ -8,7 +8,7 @@ current_past_week_unconfirmed_sales = 0
 current_this_week_confirmed_sales = 0
 current_this_week_unconfirmed_sales = 0
 
-SCHEDULER.every '5m' do
+SCHEDULER.every '2h' do
 
   past_week_end_date = Chronic.parse 'last saturday'
   past_week_start_date = past_week_end_date - (24*3600*6)
@@ -54,6 +54,5 @@ SCHEDULER.every '5m' do
 
   send_event('unconfirmed-this-week-sales', {current: this_week_unconfirmed, last: current_this_week_unconfirmed_sales})
   current_this_week_unconfirmed_sales = this_week_unconfirmed
-
 
 end
