@@ -40,7 +40,7 @@ SCHEDULER.every '2h' do
   send_event('unconfirmed-past-week-sales', {current: past_week_confirmed, last: current_past_week_unconfirmed_sales})
   current_past_week_unconfirmed_sales = past_week_unconfirmed
 
-  this_week_start_date = Time.new.wday == 2 ? Time.new : Chronic.parse('last monday')
+  this_week_start_date = Time.new.wday <= 2 ? Time.new : Chronic.parse('last monday')
   this_week_end_date = Time.new
 
   this_week_range_cells = cells.select { |x| x[:date] >= this_week_start_date && x[:date]<=this_week_end_date }
