@@ -8,7 +8,7 @@ current_past_week_unconfirmed_sales = 0
 current_this_week_confirmed_sales = 0
 current_this_week_unconfirmed_sales = 0
 
-SCHEDULER.every '2h' do
+#SCHEDULER.every '2h' do
 
   past_week_end_date = Chronic.parse 'last saturday'
   past_week_start_date = past_week_end_date - (24*3600*6)
@@ -34,10 +34,10 @@ SCHEDULER.every '2h' do
   past_week_confirmed = past_week_range_cells.count { |x| x[:approved_sale] }
   past_week_unconfirmed = past_week_range_cells.count { |x| !x[:approved_sale] }
 
-  send_event('confirmed-past-week-sales', {current: past_week_unconfirmed, last: current_past_week_confirmed_sales})
+  send_event('confirmed-past-week-sales', {current: past_week_confirmed, last: current_past_week_confirmed_sales})
   current_past_week_confirmed_sales = past_week_confirmed
 
-  send_event('unconfirmed-past-week-sales', {current: past_week_confirmed, last: current_past_week_unconfirmed_sales})
+  send_event('unconfirmed-past-week-sales', {current: past_week_unconfirmed, last: current_past_week_unconfirmed_sales})
   current_past_week_unconfirmed_sales = past_week_unconfirmed
 
   this_week_start_date = Time.new.wday <= 2 ? Time.new : Chronic.parse('last monday')
