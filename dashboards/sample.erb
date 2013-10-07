@@ -1,9 +1,8 @@
 <% content_for :title do %>Medical Alert Dashboard
 <% end %>
-
 <script type='text/javascript'>
-    $(function () {
-        Dashing.gridsterLayout('[{"col":1,"row":1,"size_x":1,"size_y":1},{"col":2,"row":1,"size_x":1,"size_y":1},{"col":3,"row":1,"size_x":1,"size_y":1},{"col":1,"row":2,"size_x":1,"size_y":1},{"col":2,"row":2,"size_x":1,"size_y":1},{"col":4,"row":2,"size_x":1,"size_y":1},{"col":5,"row":2,"size_x":1,"size_y":1},{"col":4,"row":1,"size_x":2,"size_y":1}]')
+    $(function() {
+        Dashing.gridsterLayout('[{"col":1,"row":1,"size_x":1,"size_y":1},{"col":2,"row":1,"size_x":1,"size_y":1},{"col":3,"row":1,"size_x":1,"size_y":1},{"col":2,"row":2,"size_x":1,"size_y":1},{"col":3,"row":2,"size_x":1,"size_y":1},{"col":4,"row":2,"size_x":1,"size_y":1},{"col":5,"row":2,"size_x":1,"size_y":1},{"col":4,"row":3,"size_x":1,"size_y":1},{"col":5,"row":3,"size_x":1,"size_y":1},{"col":4,"row":1,"size_x":2,"size_y":1}]')
         Dashing.numColumns = 6
     });
 </script>
@@ -20,6 +19,14 @@
 
     <li data-row="1" data-col="3" data-sizex="1" data-sizey="1">
       <div data-id="total-outbound-sales" data-view="Number" data-title="Outbound sales" data-moreinfo="today"></div>
+    </li>
+
+    <li data-row="4" data-col="1" data-sizex="1" data-sizey="1">
+      <div data-id="total-inbound-calls" data-view="Number" data-title="Inbound calls" data-moreinfo="today"></div>
+    </li>
+
+    <li data-row="4" data-col="2" data-sizex="1" data-sizey="1">
+      <div data-id="total-outbound-calls" data-view="Number" data-title="Outbound calls" data-moreinfo="today"></div>
     </li>
 
 

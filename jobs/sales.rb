@@ -2,7 +2,7 @@ require 'rest-client'
 require 'chronic'
 
 class ViciStats
-  def get_sales(url, hash, group)
+  def get_data(url, hash, group)
     result = RestClient.post url, hash.merge({'group[]' => group})
 
     sales_match = result.scan(/Sale Made.+?\|.+?\|(.+?)\|/)
@@ -12,13 +12,25 @@ class ViciStats
       sales = 0
     end
 
-    sales
+    total_match = result.scan(/TOTAL:.+?\|(.+?)\|/)
+
+    if total_match.length > 0
+      total_calls = total_match[0][0].to_i
+    end
+
+    {
+        calls: total_calls,
+        sales: sales
+    }
   end
 end
 
 current_total_sales = 0
 current_inbound_sales = 0
 current_outbound_sales = 0
+
+current_inbound_calls = 0
+current_outbound_calls = 0
 
 SCHEDULER.every '5m' do
 
@@ -37,12 +49,18 @@ SCHEDULER.every '5m' do
       EMAIL: ''
   }
 
-  inbound_sales = %w(MACLOSER MACUST MASALES).map { |group|
-    vici_stats.get_sales 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
-  }.inject(:+)
+  inbound = %w(MACLOSER MACUST MASALES).map { |group|
+    vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
+  }
+
+  inbound_sales = inbound.map { |x| x[:sales] }.inject(:+)
+  inbound_calls =inbound.map { |x| x[:calls] }.inject(:+)
 
   send_event('total-inbound-sales', {current: inbound_sales, last: current_inbound_sales})
   current_inbound_sales = inbound_sales
+
+  send_event('total-inbound-calls', {current: inbound_calls, last: current_inbound_calls})
+  current_inbound_calls = inbound_calls
 
   out_post_hash = {
       include_rollover: 'NO',
@@ -55,12 +73,18 @@ SCHEDULER.every '5m' do
       SUBMIT: 'SUBMIT',
   }
 
-  outbound_sales = %w(MEDALRT MEDCU).map { |group|
-    vici_stats.get_sales 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
-  }.inject(:+)
+  outbound = %w(MEDALRT MEDCU).map { |group|
+    vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
+  }
+
+  outbound_sales = outbound.map { |x| x[:sales] }.inject(:+)
+  outbound_calls =outbound.map { |x| x[:calls] }.inject(:+)
 
   send_event('total-outbound-sales', {current: outbound_sales, last: current_outbound_sales})
   current_outbound_sales = outbound_sales
+
+  send_event('total-outbound-calls', {current: outbound_calls, last: current_outbound_calls})
+  current_outbound_calls = outbound_calls
 
   send_event('total-sales', {current: inbound_sales + outbound_sales, last: current_total_sales})
   current_total_sales = outbound_sales + inbound_sales
@@ -81,15 +105,15 @@ SCHEDULER.every '5m' do
     in_post_hash[:end_date] = x.strftime('%Y-%m-%d')
 
     inbound_sales= %w(MACLOSER MACUST MASALES).map { |group|
-      vici_stats.get_sales 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
-    }.inject(:+)
+      vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
+    }.map { |x| x[:sales] }.inject(:+)
 
     out_post_hash[:query_date] = x.strftime('%Y-%m-%d')
     out_post_hash[:end_date] = x.strftime('%Y-%m-%d')
 
     outbound_sales = %w(MEDALRT MEDCU).map { |group|
-      vici_stats.get_sales 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
-    }.inject(:+)
+      vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
+    }.map { |x| x[:sales] }.inject(:+)
 
     {y: (inbound_sales + outbound_sales), x: x.wday}
   }
