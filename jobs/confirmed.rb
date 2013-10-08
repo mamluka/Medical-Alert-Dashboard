@@ -47,7 +47,7 @@ SCHEDULER.every '30m' do
   send_event('unconfirmed-past-week-sales', {current: past_week_unconfirmed, last: current_past_week_unconfirmed_sales})
   current_past_week_unconfirmed_sales = past_week_unconfirmed
 
-  this_week_start_date = Time.new.wday <= 2 ? Time.new : Chronic.parse('last monday')
+  this_week_start_date = Time.new.wday == 1 ? Time.new : Chronic.parse('last monday')
   this_week_end_date = Time.new
 
   this_week_active_customer_range_cells = active_customers_cells.select { |x| x[:date] >= this_week_start_date && x[:date]<=this_week_end_date }
@@ -62,5 +62,4 @@ SCHEDULER.every '30m' do
 
   send_event('unconfirmed-this-week-sales', {current: this_week_unconfirmed, last: current_this_week_unconfirmed_sales})
   current_this_week_unconfirmed_sales = this_week_unconfirmed
-
 end

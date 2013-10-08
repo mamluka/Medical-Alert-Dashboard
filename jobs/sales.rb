@@ -89,7 +89,7 @@ SCHEDULER.every '5m' do
   send_event('total-sales', {current: inbound_sales + outbound_sales, last: current_total_sales})
   current_total_sales = outbound_sales + inbound_sales
 
-  this_week_start_date = Time.new.wday == 2 ? Time.new : Chronic.parse('last monday')
+  this_week_start_date = Time.new.wday == 1 ? Time.new : Chronic.parse('last monday')
   this_week_end_date = Time.new
 
   dates_for_data_points = Array.new
@@ -98,6 +98,7 @@ SCHEDULER.every '5m' do
     dates_for_data_points << current_date
     current_date = current_date + (24*3600)
   end
+  dates_for_data_points << this_week_end_date
 
   week_sales_data_points = dates_for_data_points.map { |x|
 
