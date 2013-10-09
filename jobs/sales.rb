@@ -12,13 +12,36 @@ class ViciStats
       sales = 0
     end
 
+    sales_match = result.scan(/ACH.+?\|.+?\|.+?\|(.+?)\|/)
+    if sales_match.length > 0
+      sales = sales + sales_match[0][0].to_i
+    end
+
+    sales_match = result.scan(/CCT.+?\|.+?\|.+?\|(.+?)\|/)
+    if sales_match.length > 0
+      sales = sales + sales_match[0][0].to_i
+    end
+
     total_match = result.scan(/TOTAL:.+?\|(.+?)\|/)
 
     if total_match.length > 0
       total_calls = total_match[0][0].to_i
     end
 
+    post_date_match = result.scan(/PD\s.+?\|.+?\|.+?\|(.+?)\|/)
+    if post_date_match.length > 0
+      post_date = post_date_match[0][0].to_i
+    else
+      post_date= 0
+    end
+
+    post_date_match = result.scan(/PDS.+?\|.+?\|.+?\|(.+?)\|/)
+    if post_date_match.length > 0
+      post_date = post_date + post_date_match[0][0].to_i
+    end
+
     {
+        post_date: post_date,
         calls: total_calls,
         sales: sales
     }
@@ -31,6 +54,8 @@ current_outbound_sales = 0
 
 current_inbound_calls = 0
 current_outbound_calls = 0
+
+current_post_date_sales = 0
 
 SCHEDULER.every '5m' do
 
@@ -55,6 +80,7 @@ SCHEDULER.every '5m' do
 
   inbound_sales = inbound.map { |x| x[:sales] }.inject(:+)
   inbound_calls =inbound.map { |x| x[:calls] }.inject(:+)
+  inbound_post_date = inbound.map { |x| x[:post_date] }.inject(:+)
 
   send_event('total-inbound-sales', {current: inbound_sales, last: current_inbound_sales})
   current_inbound_sales = inbound_sales
@@ -79,6 +105,7 @@ SCHEDULER.every '5m' do
 
   outbound_sales = outbound.map { |x| x[:sales] }.inject(:+)
   outbound_calls =outbound.map { |x| x[:calls] }.inject(:+)
+  outbound_post_date = outbound.map { |x| x[:post_date] }.inject(:+)
 
   send_event('total-outbound-sales', {current: outbound_sales, last: current_outbound_sales})
   current_outbound_sales = outbound_sales
@@ -88,6 +115,9 @@ SCHEDULER.every '5m' do
 
   send_event('total-sales', {current: inbound_sales + outbound_sales, last: current_total_sales})
   current_total_sales = outbound_sales + inbound_sales
+
+  send_event('total-post-date-sales', {current: outbound_post_date + inbound_post_date, last: current_post_date_sales})
+  current_post_date_sales = outbound_post_date + inbound_post_date
 
   this_week_start_date = Time.new.wday == 1 ? Time.new : Chronic.parse('last monday')
   this_week_end_date = Time.new
