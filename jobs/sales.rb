@@ -26,6 +26,8 @@ class ViciStats
 
     if total_match.length > 0
       total_calls = total_match[0][0].to_i
+    else
+      total_calls = 0
     end
 
     post_date_match = result.scan(/PD\s.+?\|.+?\|.+?\|(.+?)\|/)
@@ -113,7 +115,7 @@ SCHEDULER.every '5m' do
   send_event('total-outbound-calls', {current: outbound_calls, last: current_outbound_calls})
   current_outbound_calls = outbound_calls
 
-  send_event('total-sales', {current: inbound_sales + outbound_sales, last: current_total_sales})
+  send_event('total-sales', {current: inbound_sales + outbound_sales + outbound_post_date + inbound_post_date, last: current_total_sales})
   current_total_sales = outbound_sales + inbound_sales
 
   send_event('total-post-date-sales', {current: outbound_post_date + inbound_post_date, last: current_post_date_sales})
@@ -135,18 +137,25 @@ SCHEDULER.every '5m' do
     in_post_hash[:query_date] = x.strftime('%Y-%m-%d')
     in_post_hash[:end_date] = x.strftime('%Y-%m-%d')
 
-    inbound_sales= %w(MACLOSER MACUST MASALES).map { |group|
+    inbound= %w(MACLOSER MACUST MASALES).map { |group|
       vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
-    }.map { |x| x[:sales] }.inject(:+)
+    }
+
+    inbound_sales = inbound.map { |x| x[:sales] }.inject(:+)
+    inbound_post_date = inbound.map { |x| x[:post_date] }.inject(:+)
+
 
     out_post_hash[:query_date] = x.strftime('%Y-%m-%d')
     out_post_hash[:end_date] = x.strftime('%Y-%m-%d')
 
-    outbound_sales = %w(MEDALRT MEDCU).map { |group|
+    outbound= %w(MEDALRT MEDCU).map { |group|
       vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
-    }.map { |x| x[:sales] }.inject(:+)
+    }
 
-    {y: (inbound_sales + outbound_sales), x: x.wday}
+    outbound_sales = outbound.map { |x| x[:sales] }.inject(:+)
+    outbound_post_date = outbound.map { |x| x[:post_date] }.inject(:+)
+
+    {y: (inbound_sales + outbound_sales + inbound_post_date + outbound_post_date), x: x.wday}
   }
 
   send_event('sales-graph', {points: week_sales_data_points})
