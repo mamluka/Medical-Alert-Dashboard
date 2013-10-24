@@ -28,7 +28,7 @@ SCHEDULER.every '10m' do
   send_event('confirmed-past-week-sales', {current: past_week_confirmed, last: current_past_week_confirmed_sales})
   current_past_week_confirmed_sales = past_week_confirmed
 
-  send_event('declined-past-week-sales', {current: past_week_unconfirmed, last: current_past_week_declined_sales})
+  send_event('declined-past-week-sales', {current: past_week_declined, last: current_past_week_declined_sales})
   current_past_week_declined_sales = past_week_declined
 
   this_week_start_date = Time.new.wday == 1 ? Time.new : Chronic.parse('last monday')
