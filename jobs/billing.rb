@@ -8,7 +8,7 @@ current_past_week_declined_sales = 0
 current_this_week_confirmed_sales = 0
 current_this_week_declined_sales = 0
 
-SCHEDULER.every '30m' do
+SCHEDULER.every '10m' do
 
   past_week_end_date = Chronic.parse('last saturday')
   past_week_start_date = past_week_end_date - (24*3600*6)
