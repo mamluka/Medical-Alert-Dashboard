@@ -40,10 +40,10 @@ SCHEDULER.every '10m' do
   this_week_confirmed = text.scan(/Approved:\s(\d+?)\s/)[0][0]
   this_week_declined = text.scan(/Declined:\s(\d+?)\s/)[0][0]
 
-  send_event('confirmed-past-week-sales', {current: this_week_confirmed, last: current_this_week_confirmed_sales})
+  send_event('confirmed-this-week-sales', {current: this_week_confirmed, last: current_this_week_confirmed_sales})
   current_this_week_confirmed_sales = this_week_confirmed
 
-  send_event('declined-past-week-sales', {current: this_week_declined, last: current_this_week_declined_sales})
+  send_event('declined-this-week-sales', {current: this_week_declined, last: current_this_week_declined_sales})
   current_this_week_declined_sales = this_week_declined
 
   client.close
