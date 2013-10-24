@@ -13,7 +13,7 @@ SCHEDULER.every '30m' do
   past_week_end_date = Chronic.parse('last saturday')
   past_week_start_date = past_week_end_date - (24*3600*6)
 
-  client = Watir::Browser.new :chrome
+  client = Watir::Browser.new :phantomjs
 
   client.goto "https://www.administration123.com/manage/billing/index.cfm?transaction_created_from=#{past_week_start_date.strftime('%m/%d/%Y')}&transaction_created_to=#{past_week_end_date.strftime('%m/%d/%Y')}"
   client.text_field(name: 'username').set 'Ellick Data Entry'
