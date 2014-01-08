@@ -8,7 +8,7 @@ class UsBilling
   @current_this_week_confirmed_sales = 0
 
   def initialize
-    @client = Watir::Browser.new :chrome
+    @client = Watir::Browser.new :phantomjs
   end
 
   def get_billing
