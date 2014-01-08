@@ -32,7 +32,7 @@ class Sales
     }
 
     inbound = %w(MACLOSER MACUST MASALES).map { |group|
-      vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
+      vici_stats.get_data 'http://cpierre:cpierre@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
     }
 
     inbound_sales = inbound.map { |x| x[:sales] }.inject(:+)
@@ -51,8 +51,8 @@ class Sales
         SUBMIT: 'SUBMIT',
     }
 
-    outbound = %w(MEDALRT MEDCU).map { |group|
-      vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
+    outbound = %w(MEDALRT MEDCL MEDCU MEDLG).map { |group|
+      vici_stats.get_data 'http://cpierre:cpierre@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
     }
 
     outbound_sales = outbound.map { |x| x[:sales] }.inject(:+)
@@ -77,7 +77,7 @@ class Sales
       in_post_hash[:end_date] = x.strftime('%Y-%m-%d')
 
       inbound= %w(MACLOSER MACUST MASALES).map { |group|
-        vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
+        vici_stats.get_data 'http://cpierre:cpierre@68.168.105.58/vicidial/AST_CLOSERstats.php', in_post_hash, group
       }
 
       inbound_sales = inbound.map { |x| x[:sales] }.inject(:+)
@@ -87,8 +87,8 @@ class Sales
       out_post_hash[:query_date] = x.strftime('%Y-%m-%d')
       out_post_hash[:end_date] = x.strftime('%Y-%m-%d')
 
-      outbound= %w(MEDALRT MEDCU).map { |group|
-        vici_stats.get_data 'http://MEDUSA00100:MEDUSA00100@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
+      outbound= %w(MEDALRT MEDCL MEDCU MEDLG).map { |group|
+        vici_stats.get_data 'http://cpierre:cpierre@68.168.105.58/vicidial/AST_VDADstats.php', out_post_hash, group
       }
 
       outbound_sales = outbound.map { |x| x[:sales] }.inject(:+)
@@ -123,6 +123,6 @@ end
 
 sales = Sales.new
 
-SCHEDULER.every '5m' do
+SCHEDULER.every '2m' do
   sales.get_sales
 end

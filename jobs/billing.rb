@@ -7,7 +7,7 @@ require_relative '../lib/billing/billing'
 
 billing = Billing.new
 
-SCHEDULER.every '10m' do
+SCHEDULER.every '30m' do
   result = billing.get_billing
 
   confirmed_past_week_sales = result[:confirmed_past_week_sales]
@@ -15,6 +15,5 @@ SCHEDULER.every '10m' do
 
   send_event('confirmed-past-week-sales', {current: confirmed_past_week_sales[:current], last: confirmed_past_week_sales[:last]})
   send_event('confirmed-this-week-sales', {current: confirmed_this_week_sales[:current], last: confirmed_this_week_sales[:last]})
-
 
 end
