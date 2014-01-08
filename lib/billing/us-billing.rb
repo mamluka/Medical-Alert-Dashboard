@@ -3,12 +3,12 @@ require 'watir-webdriver'
 
 require 'active_support/core_ext/date/calculations'
 
-class Billing
+class UsBilling
   @current_past_week_confirmed_sales = 0
   @current_this_week_confirmed_sales = 0
 
   def initialize
-    @client = Watir::Browser.new :phantomjs
+    @client = Watir::Browser.new :chrome
   end
 
   def get_billing
@@ -19,8 +19,8 @@ class Billing
 
 
       @client.goto "https://www.administration123.com/manage/users/index.cfm?activefilter=active&productSearchType=ANY&rd_product=1&rd_product_not=1&dtBillingStart=#{past_week_start_date.strftime('%m/%d/%Y')}&dtBillingEnd=#{past_week_end_date.strftime('%m/%d/%Y')}&holdSearchType=include&bAllPayments=0&reportId=681&pageSize=100"
-      @client.text_field(name: 'username').set 'Ellick Data Entry'
-      @client.text_field(name: 'password').set 'Ellick774466'
+      @client.text_field(name: 'username').set 'SSMMSC Master Login'
+      @client.text_field(name: 'password').set 'SSMMSC881144'
 
       @client.button(name: 'authenticate').click
 
